@@ -12,15 +12,8 @@
     var canvas = document.getElementById('world');
     var w = root.innerWidth, h = root.innerHeight;
 
-    // Scale simulation to screen size: phones get far fewer, smaller creatures.
-    var area = w * h;
+    // Scale creature body and sensor ranges to screen size on smaller devices.
     var shortSide = Math.min(w, h);
-    var wcfg = TP.CONFIG.world;
-    var origCap = wcfg.hardCap;
-    // Linear ramp: ~80 at phone size (250k px²), ~640 at 2M px² (1080p desktop).
-    wcfg.hardCap    = Math.min(origCap, Math.max(60, Math.round(80 + 0.00032 * Math.max(0, area - 250000))));
-    wcfg.initialPop = Math.max(15, Math.round(wcfg.initialPop * wcfg.hardCap / origCap));
-    // Shrink creature body and sensor ranges proportionally to screen short-side.
     var sizeScale = Math.min(1, shortSide / 1080);
     TP.CONFIG.genes.forEach(function (g) {
       if (g.name === 'size') {
