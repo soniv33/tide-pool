@@ -33,9 +33,9 @@
     });
     // On phones, default density to 0.3 — less crowded, matches what looks good.
     if (shortSide < 500) {
-      TP.CONFIG.defaults.density = 0.3;
+      TP.CONFIG.defaults.density = 0.5;
       var ds = document.getElementById('rngDensity');
-      if (ds) ds.value = '0.3';
+      if (ds) ds.value = '0.5';
     }
 
     var world = new TP.World(w, h, { seed: TP.CONFIG.defaults.seed });
