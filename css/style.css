@@ -23,10 +23,11 @@ html, body {
   font-family: var(--mono);
   font-size: 12px;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
 
-#world { position: fixed; inset: 0; display: block; cursor: crosshair; }
+#world { position: fixed; inset: 0; display: block; cursor: crosshair; touch-action: none; }
 
 /* ---- Panels ---- */
 .panel { position: fixed; z-index: 5; border-radius: 12px; }
@@ -40,7 +41,11 @@ html, body {
 .hidden { display: none !important; }
 
 /* ---- HUD ---- */
-#hud { top: 16px; left: 16px; padding: 12px 14px; min-width: 196px; }
+#hud {
+  top: max(16px, env(safe-area-inset-top, 0px));
+  left: max(16px, env(safe-area-inset-left, 0px));
+  padding: 12px 14px; min-width: 196px;
+}
 #title {
   font-size: 15px; letter-spacing: 5px; font-weight: 700;
   color: #eafdff; text-shadow: 0 0 14px rgba(56, 230, 208, 0.55);
@@ -51,7 +56,11 @@ html, body {
 .hud-grid .v, .insp-vitals .v { color: var(--accent); text-align: right; font-variant-numeric: tabular-nums; }
 
 /* ---- Controls ---- */
-#controls { left: 16px; bottom: 16px; width: 232px; padding: 13px; display: flex; flex-direction: column; gap: 11px; }
+#controls {
+  left: max(16px, env(safe-area-inset-left, 0px));
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  width: 232px; padding: 13px; display: flex; flex-direction: column; gap: 11px;
+}
 .row { display: flex; gap: 8px; }
 .ctl { display: flex; flex-direction: column; gap: 5px; }
 .lbl { color: var(--dim); display: flex; justify-content: space-between; }
@@ -105,7 +114,11 @@ input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border: none; b
 .seedctl { gap: 4px; }
 
 /* ---- Charts ---- */
-#charts { right: 16px; top: 16px; width: 250px; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+#charts {
+  right: max(16px, env(safe-area-inset-right, 0px));
+  top: max(16px, env(safe-area-inset-top, 0px));
+  width: 250px; padding: 12px; display: flex; flex-direction: column; gap: 12px;
+}
 .chart { display: flex; flex-direction: column; gap: 3px; }
 .clabel { color: var(--dim); font-size: 10px; letter-spacing: 0.5px; display: flex; justify-content: space-between; }
 .clabel span { color: var(--accent); }
@@ -113,7 +126,11 @@ input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border: none; b
 .chart canvas { width: 100%; height: 56px; display: block; border-radius: 6px; background: rgba(2, 10, 16, 0.5); }
 
 /* ---- Inspector ---- */
-#inspector { right: 16px; bottom: 16px; width: 250px; padding: 13px; display: flex; flex-direction: column; gap: 9px; }
+#inspector {
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  width: 250px; padding: 13px; display: flex; flex-direction: column; gap: 9px;
+}
 .insp-head { display: flex; justify-content: space-between; align-items: center; }
 #inspName { color: #eafdff; letter-spacing: 1px; }
 .x { background: none; border: none; color: var(--dim); cursor: pointer; font-size: 13px; }
@@ -131,7 +148,7 @@ input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border: none; b
 
 /* ---- Toast ---- */
 .toast {
-  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+  position: fixed; left: 50%; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
   z-index: 20; padding: 9px 16px; border-radius: 20px;
   background: rgba(8, 26, 34, 0.85); border: 1px solid var(--stroke);
   color: var(--accent); letter-spacing: 0.5px;
@@ -156,8 +173,42 @@ input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border: none; b
 .splash-sub { margin-top: 14px; color: var(--accent); letter-spacing: 2px; opacity: 0.85; }
 @keyframes breathe { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-/* On small screens, let charts/inspector retreat */
+/* ---- Responsive layout ---- */
+
+/* Tablet / large phone (≤ 760px): hide charts, tighten controls */
 @media (max-width: 760px) {
   #charts { display: none; }
-  #controls { width: 200px; }
+
+  /* Push controls below the HUD (~210px) so they never overlap */
+  #controls {
+    width: 200px;
+    top: calc(max(16px, env(safe-area-inset-top, 0px)) + 210px);
+    bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* Larger touch targets */
+  .btn { min-height: 38px; touch-action: manipulation; }
+  input[type=range]::-webkit-slider-thumb { width: 20px; height: 20px; }
+
+  /* Splash title won't overflow narrow screens */
+  .splash-title { font-size: 22px; letter-spacing: 8px; }
+}
+
+/* Phone portrait (≤ 600px): inspector becomes a full-width bottom sheet
+   so it never horizontally collides with the controls panel */
+@media (max-width: 600px) {
+  #inspector {
+    left: max(16px, env(safe-area-inset-left, 0px));
+    right: max(16px, env(safe-area-inset-right, 0px));
+    width: auto;
+    max-height: 60dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    z-index: 10;
+  }
+
+  /* HUD rows tighter so it stays shorter */
+  .hud-grid { gap: 2px 10px; }
 }
