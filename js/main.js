@@ -24,13 +24,6 @@
         g.max = Math.max(40, Math.round(g.max * sizeScale));
       }
     });
-    // On phones, default density to 0.3 — less crowded, matches what looks good.
-    if (shortSide < 500) {
-      TP.CONFIG.defaults.density = 0.5;
-      var ds = document.getElementById('rngDensity');
-      if (ds) ds.value = '0.5';
-    }
-
     var world = new TP.World(w, h, { seed: TP.CONFIG.defaults.seed });
     var renderer = new TP.Renderer(canvas);
     renderer.resize(w, h);
