@@ -12,6 +12,13 @@
     var canvas = document.getElementById('world');
     var w = root.innerWidth, h = root.innerHeight;
 
+    // Scale population cap to screen area so mobile isn't overcrowded.
+    // A ~1280×800 viewport gets the full defaults; smaller screens scale down.
+    var areaScale = Math.min(1, (w * h) / (1280 * 800));
+    var wcfg = TP.CONFIG.world;
+    wcfg.hardCap    = Math.max(100, Math.round(wcfg.hardCap    * areaScale));
+    wcfg.initialPop = Math.max(30,  Math.round(wcfg.initialPop * areaScale));
+
     var world = new TP.World(w, h, { seed: TP.CONFIG.defaults.seed });
     var renderer = new TP.Renderer(canvas);
     renderer.resize(w, h);

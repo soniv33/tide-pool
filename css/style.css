@@ -184,8 +184,15 @@ input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border: none; b
 
   #controls { width: 200px; }
 
-  /* Larger touch targets */
-  .btn { min-height: 38px; touch-action: manipulation; }
+  /* Readable text on small screens */
+  html { font-size: 13px; }
+  .btn { font-size: 12px; min-height: 38px; touch-action: manipulation; }
+  .sec { font-size: 11px; }
+  .hint { font-size: 12px; }
+  .seedrow .seed, select { font-size: 13px; }
+  .gene { font-size: 11px; }
+
+  /* Bigger slider thumbs */
   input[type=range]::-webkit-slider-thumb { width: 20px; height: 20px; }
 
   /* Splash title won't overflow narrow screens */
