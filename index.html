@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>TIDE POOL — an evolving bioluminescent ecosystem</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!-- The living world -->
+<canvas id="world"></canvas>
+
+<!-- Top-left heads-up display -->
+<div id="hud" class="panel glass">
+  <div id="title">TIDE&nbsp;POOL</div>
+  <div class="hud-grid">
+    <span class="k">pop</span><span class="v" id="hudPop">0</span>
+    <span class="k">species</span><span class="v" id="hudSpecies">0</span>
+    <span class="k">pred:prey</span><span class="v" id="hudPred">0:0</span>
+    <span class="k">max gen</span><span class="v" id="hudGen">0</span>
+    <span class="k">eldest line</span><span class="v" id="hudLineage">—</span>
+    <span class="k">food</span><span class="v" id="hudFood">0</span>
+    <span class="k">tick</span><span class="v" id="hudTick">0</span>
+    <span class="k">phase</span><span class="v" id="hudDay">day</span>
+    <span class="k">fps</span><span class="v" id="hudFps">0</span>
+  </div>
+</div>
+
+<!-- Left control panel -->
+<div id="controls" class="panel glass">
+  <div class="row">
+    <button id="btnPlay" class="btn primary">❚❚ Pause</button>
+    <button id="btnReset" class="btn">↻ Restart</button>
+  </div>
+
+  <label class="ctl">
+    <span class="lbl">sim speed <b id="valSpeed">1×</b></span>
+    <input id="rngSpeed" type="range" min="1" max="50" step="1" value="1">
+  </label>
+
+  <div class="row seedrow">
+    <input id="inSeed" class="seed" type="text" value="tide-pool" spellcheck="false">
+    <button id="btnApplySeed" class="btn">seed ⏎</button>
+  </div>
+
+  <label class="ctl">
+    <span class="lbl">food spawn <b id="valFood">8.0</b></span>
+    <input id="rngFood" type="range" min="0" max="30" step="0.5" value="8">
+  </label>
+  <label class="ctl">
+    <span class="lbl">mutation × <b id="valMut">1.0</b></span>
+    <input id="rngMut" type="range" min="0" max="5" step="0.1" value="1">
+  </label>
+  <label class="ctl">
+    <span class="lbl">world density <b id="valDensity">1.0</b></span>
+    <input id="rngDensity" type="range" min="0.3" max="2.5" step="0.1" value="1">
+  </label>
+
+  <div class="toggles">
+    <label class="tog"><input type="checkbox" id="chkPredation" checked><span>predation</span></label>
+    <label class="tog"><input type="checkbox" id="chkSexual"><span>sexual repro</span></label>
+    <label class="tog"><input type="checkbox" id="chkDayNight" checked><span>day / night</span></label>
+    <label class="tog"><input type="checkbox" id="chkSpont" checked><span>primordial soup</span></label>
+    <label class="tog"><input type="checkbox" id="chkAudio"><span>audio</span></label>
+  </div>
+
+  <label class="ctl">
+    <span class="lbl">colour by</span>
+    <select id="selColor">
+      <option value="genome">genome (lineage drift)</option>
+      <option value="diet">diet (herb→pred)</option>
+      <option value="lineage">lineage id</option>
+      <option value="energy">energy</option>
+    </select>
+  </label>
+
+  <button id="btnExtinction" class="btn danger full">☄ Mass Extinction</button>
+
+  <div class="hint">click empty water to drop food · click a creature to inspect</div>
+</div>
+
+<!-- Right: live charts -->
+<div id="charts" class="panel glass">
+  <div class="chart"><div class="clabel">population <span id="cvPop"></span></div><canvas id="chartPop"></canvas></div>
+  <div class="chart"><div class="clabel">traits (speed·size·sensor)</div><canvas id="chartTraits"></canvas></div>
+  <div class="chart"><div class="clabel">biodiversity (species) <span id="cvBio"></span></div><canvas id="chartBio"></canvas></div>
+  <div class="chart"><div class="clabel">predator : prey <span id="cvPred"></span></div><canvas id="chartPred"></canvas></div>
+</div>
+
+<!-- Organism inspector (hidden until a creature is selected) -->
+<div id="inspector" class="panel glass hidden">
+  <div class="insp-head">
+    <span id="inspName">organism</span>
+    <button id="btnCloseInsp" class="x">✕</button>
+  </div>
+  <div class="insp-vitals">
+    <span class="k">energy</span><span class="v" id="inspEnergy">—</span>
+    <span class="k">age</span><span class="v" id="inspAge">—</span>
+    <span class="k">offspring</span><span class="v" id="inspOff">—</span>
+    <span class="k">generation</span><span class="v" id="inspGenN">—</span>
+    <span class="k">lineage</span><span class="v" id="inspLin">—</span>
+    <span class="k">diet</span><span class="v" id="inspDiet">—</span>
+  </div>
+  <div class="insp-sec">genome</div>
+  <div id="inspGenes"></div>
+  <div class="insp-sec">brain weights</div>
+  <canvas id="brainCanvas" width="240" height="120"></canvas>
+  <div class="row insp-actions">
+    <button id="btnExportSel" class="btn">⭳ export JSON</button>
+    <button id="btnInjectSel" class="btn">⭱ re-inject</button>
+  </div>
+  <input id="fileInject" type="file" accept="application/json" hidden>
+</div>
+
+<!-- A transient toast for events (exports, injections, extinctions) -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- Core simulation (environment-agnostic, load order matters) -->
+<script src="js/rng.js"></script>
+<script src="js/config.js"></script>
+<script src="js/genome.js"></script>
+<script src="js/brain.js"></script>
+<script src="js/spatial.js"></script>
+<script src="js/organism.js"></script>
+<script src="js/world.js"></script>
+<!-- Presentation -->
+<script src="js/render.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

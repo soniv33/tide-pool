@@ -1,0 +1,138 @@
+/* TIDE POOL — deep-sea / bioluminescent UI.
+   Dark, translucent glass panels; monospace numbers; cyan glow accents. */
+
+:root {
+  --bg0: #02060c;
+  --bg1: #06121d;
+  --ink: #cfe9ef;
+  --dim: #5d7c88;
+  --accent: #38e6d0;
+  --accent2: #6ad0ff;
+  --danger: #ff5d73;
+  --glass: rgba(8, 22, 32, 0.46);
+  --stroke: rgba(120, 220, 230, 0.14);
+  --mono: 'SFMono-Regular', 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; height: 100%; overflow: hidden;
+  background: radial-gradient(120% 120% at 50% 18%, #06141f 0%, var(--bg0) 70%);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+#world { position: fixed; inset: 0; display: block; cursor: crosshair; }
+
+/* ---- Panels ---- */
+.panel { position: fixed; z-index: 5; border-radius: 12px; }
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+  backdrop-filter: blur(9px) saturate(120%);
+  -webkit-backdrop-filter: blur(9px) saturate(120%);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.45), inset 0 0 30px rgba(40, 120, 130, 0.04);
+}
+.hidden { display: none !important; }
+
+/* ---- HUD ---- */
+#hud { top: 16px; left: 16px; padding: 12px 14px; min-width: 196px; }
+#title {
+  font-size: 15px; letter-spacing: 5px; font-weight: 700;
+  color: #eafdff; text-shadow: 0 0 14px rgba(56, 230, 208, 0.55);
+  margin-bottom: 9px;
+}
+.hud-grid { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; }
+.hud-grid .k, .insp-vitals .k { color: var(--dim); }
+.hud-grid .v, .insp-vitals .v { color: var(--accent); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---- Controls ---- */
+#controls { left: 16px; bottom: 16px; width: 232px; padding: 13px; display: flex; flex-direction: column; gap: 11px; }
+.row { display: flex; gap: 8px; }
+.ctl { display: flex; flex-direction: column; gap: 5px; }
+.lbl { color: var(--dim); display: flex; justify-content: space-between; }
+.lbl b { color: var(--accent); font-weight: 600; }
+
+.btn {
+  flex: 1; cursor: pointer; padding: 7px 9px; border-radius: 8px;
+  background: rgba(20, 44, 54, 0.6); color: var(--ink);
+  border: 1px solid var(--stroke); font-family: var(--mono); font-size: 11px;
+  transition: background .15s, border-color .15s, transform .05s;
+}
+.btn:hover { background: rgba(34, 70, 82, 0.8); border-color: rgba(120, 220, 230, 0.3); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { color: #eafdff; border-color: rgba(56, 230, 208, 0.4); }
+.btn.danger { color: var(--danger); border-color: rgba(255, 93, 115, 0.35); }
+.btn.danger:hover { background: rgba(90, 24, 34, 0.6); }
+.btn.full { width: 100%; }
+
+.seedrow .seed {
+  flex: 1; min-width: 0; padding: 7px 9px; border-radius: 8px;
+  background: rgba(4, 14, 20, 0.7); border: 1px solid var(--stroke);
+  color: var(--accent2); font-family: var(--mono); font-size: 11px;
+}
+select, input[type=file]::-webkit-file-upload-button {
+  background: rgba(4, 14, 20, 0.7); color: var(--ink);
+  border: 1px solid var(--stroke); border-radius: 8px; padding: 6px;
+  font-family: var(--mono); font-size: 11px;
+}
+select { width: 100%; }
+
+/* range sliders */
+input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), rgba(56,230,208,0.12)); outline: none; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%;
+  background: #d7fffb; box-shadow: 0 0 8px var(--accent); cursor: pointer; }
+input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border: none; border-radius: 50%;
+  background: #d7fffb; box-shadow: 0 0 8px var(--accent); cursor: pointer; }
+
+.toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; }
+.tog { display: flex; align-items: center; gap: 6px; color: var(--dim); cursor: pointer; }
+.tog input { accent-color: var(--accent); }
+.tog:hover span { color: var(--ink); }
+
+.hint { color: var(--dim); font-size: 10px; line-height: 1.5; opacity: 0.8; }
+
+/* ---- Charts ---- */
+#charts { right: 16px; top: 16px; width: 250px; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+.chart { display: flex; flex-direction: column; gap: 3px; }
+.clabel { color: var(--dim); font-size: 10px; letter-spacing: 0.5px; display: flex; justify-content: space-between; }
+.clabel span { color: var(--accent); }
+.chart canvas { width: 100%; height: 56px; display: block; border-radius: 6px; background: rgba(2, 10, 16, 0.5); }
+
+/* ---- Inspector ---- */
+#inspector { right: 16px; bottom: 16px; width: 250px; padding: 13px; display: flex; flex-direction: column; gap: 9px; }
+.insp-head { display: flex; justify-content: space-between; align-items: center; }
+#inspName { color: #eafdff; letter-spacing: 1px; }
+.x { background: none; border: none; color: var(--dim); cursor: pointer; font-size: 13px; }
+.x:hover { color: var(--danger); }
+.insp-vitals { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; }
+.insp-sec { color: var(--dim); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+#inspGenes { display: flex; flex-direction: column; gap: 3px; }
+.gene { display: grid; grid-template-columns: 64px 1fr 34px; align-items: center; gap: 7px; font-size: 10px; }
+.gene .gn { color: var(--dim); }
+.gene .gbar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
+.gene .gbar > i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+.gene .gv { color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+#brainCanvas { width: 100%; height: auto; border-radius: 6px; background: rgba(2,10,16,0.55); }
+.insp-actions .btn { font-size: 10px; }
+
+/* ---- Toast ---- */
+.toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+  z-index: 20; padding: 9px 16px; border-radius: 20px;
+  background: rgba(8, 26, 34, 0.85); border: 1px solid var(--stroke);
+  color: var(--accent); letter-spacing: 0.5px;
+  backdrop-filter: blur(8px); transition: opacity .4s; opacity: 1;
+}
+.toast.hidden { opacity: 0; }
+
+/* On small screens, let charts/inspector retreat */
+@media (max-width: 760px) {
+  #charts { display: none; }
+  #controls { width: 200px; }
+}
