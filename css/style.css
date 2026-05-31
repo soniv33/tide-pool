@@ -58,9 +58,10 @@ html, body {
 /* ---- Controls ---- */
 #controls {
   left: max(16px, env(safe-area-inset-left, 0px));
-  top: calc(max(16px, env(safe-area-inset-top, 0px)) + 250px);
   bottom: max(16px, env(safe-area-inset-bottom, 0px));
   width: 232px; padding: 13px; display: flex; flex-direction: column; gap: 11px;
+  max-height: calc(100vh - 266px);
+  max-height: calc(100dvh - 250px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   overflow-y: auto; overscroll-behavior: contain;
 }
 .row { display: flex; gap: 8px; }
