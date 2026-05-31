@@ -10,81 +10,96 @@
 <!-- The living world -->
 <canvas id="world"></canvas>
 
+<!-- Opening splash, shown while the world runs its deterministic burn-in -->
+<div id="splash">
+  <div class="splash-inner">
+    <div class="splash-title">TIDE&nbsp;POOL</div>
+    <div class="splash-sub">seeding the primordial soup…</div>
+  </div>
+</div>
+
 <!-- Top-left heads-up display -->
 <div id="hud" class="panel glass">
   <div id="title">TIDE&nbsp;POOL</div>
   <div class="hud-grid">
-    <span class="k">pop</span><span class="v" id="hudPop">0</span>
-    <span class="k">species</span><span class="v" id="hudSpecies">0</span>
-    <span class="k">pred:prey</span><span class="v" id="hudPred">0:0</span>
-    <span class="k">max gen</span><span class="v" id="hudGen">0</span>
-    <span class="k">eldest line</span><span class="v" id="hudLineage">—</span>
-    <span class="k">food</span><span class="v" id="hudFood">0</span>
-    <span class="k">tick</span><span class="v" id="hudTick">0</span>
-    <span class="k">phase</span><span class="v" id="hudDay">day</span>
-    <span class="k">fps</span><span class="v" id="hudFps">0</span>
+    <span class="k" title="Living creatures right now">creatures</span><span class="v" id="hudPop">0</span>
+    <span class="k" title="Distinct genetic clusters (rough species count)">species</span><span class="v" id="hudSpecies">0</span>
+    <span class="k" title="Hunters vs grazers alive">hunters:grazers</span><span class="v" id="hudPred">0:0</span>
+    <span class="k" title="Deepest ancestry: generations since a founder">generations</span><span class="v" id="hudGen">0</span>
+    <span class="k" title="Longest-surviving family line (age in thousands of ticks)">oldest family</span><span class="v" id="hudLineage">—</span>
+    <span class="k" title="Food particles drifting in the sea">food</span><span class="v" id="hudFood">0</span>
+    <span class="k" title="Simulation steps elapsed">time</span><span class="v" id="hudTick">0</span>
+    <span class="k" title="Day/night phase (affects food)">phase</span><span class="v" id="hudDay">day</span>
+    <span class="k" title="Frames per second">fps</span><span class="v" id="hudFps">0</span>
   </div>
 </div>
 
 <!-- Left control panel -->
 <div id="controls" class="panel glass">
   <div class="row">
-    <button id="btnPlay" class="btn primary">❚❚ Pause</button>
-    <button id="btnReset" class="btn">↻ Restart</button>
+    <button id="btnPlay" class="btn primary" title="Pause or resume the simulation (Spacebar)">❚❚ Pause</button>
+    <button id="btnReset" class="btn" title="Restart the world from scratch using the seed below">↻ New world</button>
   </div>
 
-  <label class="ctl">
-    <span class="lbl">sim speed <b id="valSpeed">1×</b></span>
-    <input id="rngSpeed" type="range" min="1" max="50" step="1" value="1">
+  <label class="ctl" title="How many simulation steps run per displayed frame. Higher = evolution fast-forwards.">
+    <span class="lbl">Speed — how fast time runs <b id="valSpeed">3×</b></span>
+    <input id="rngSpeed" type="range" min="1" max="50" step="1" value="3">
   </label>
 
-  <div class="row seedrow">
-    <input id="inSeed" class="seed" type="text" value="tide-pool" spellcheck="false">
-    <button id="btnApplySeed" class="btn">seed ⏎</button>
-  </div>
-
-  <label class="ctl">
-    <span class="lbl">food spawn <b id="valFood">8.0</b></span>
-    <input id="rngFood" type="range" min="0" max="30" step="0.5" value="8">
+  <label class="ctl seedctl" title="A text seed makes a run reproducible: the same seed always grows the same world. Type one and press New world (or Enter).">
+    <span class="lbl">Seed — type any text for a repeatable world</span>
+    <div class="row seedrow">
+      <input id="inSeed" class="seed" type="text" value="tide-pool" spellcheck="false">
+      <button id="btnApplySeed" class="btn" title="Grow a fresh world from this seed">grow ⏎</button>
+    </div>
   </label>
-  <label class="ctl">
-    <span class="lbl">mutation × <b id="valMut">1.0</b></span>
+
+  <div class="sec">Environment — tune the sea</div>
+
+  <label class="ctl" title="How much food drifts into the sea. More food → larger populations; less food → fierce competition and crashes.">
+    <span class="lbl">Food supply <b id="valFood">normal</b></span>
+    <input id="rngFood" type="range" min="0" max="30" step="0.5" value="7">
+  </label>
+  <label class="ctl" title="Multiplies every creature's own mutation rate. Higher → faster, wilder evolution and more species; 0 → evolution freezes.">
+    <span class="lbl">Mutation — speed of evolution <b id="valMut">normal</b></span>
     <input id="rngMut" type="range" min="0" max="5" step="0.1" value="1">
   </label>
-  <label class="ctl">
-    <span class="lbl">world density <b id="valDensity">1.0</b></span>
+  <label class="ctl" title="Scales how packed the sea is (food capacity and spawn). Lower → sparse and lean; higher → crowded and lush.">
+    <span class="lbl">Crowding — how packed the sea is <b id="valDensity">normal</b></span>
     <input id="rngDensity" type="range" min="0.3" max="2.5" step="0.1" value="1">
   </label>
 
+  <div class="sec">Rules — what's allowed to happen</div>
+
   <div class="toggles">
-    <label class="tog"><input type="checkbox" id="chkPredation" checked><span>predation</span></label>
-    <label class="tog"><input type="checkbox" id="chkSexual"><span>sexual repro</span></label>
-    <label class="tog"><input type="checkbox" id="chkDayNight" checked><span>day / night</span></label>
-    <label class="tog"><input type="checkbox" id="chkSpont" checked><span>primordial soup</span></label>
-    <label class="tog"><input type="checkbox" id="chkAudio"><span>audio</span></label>
+    <label class="tog" title="Let bigger creatures hunt and eat smaller ones. Off → everyone is a peaceful grazer."><input type="checkbox" id="chkPredation" checked><span>hunting</span></label>
+    <label class="tog" title="Breed by mixing two parents' genomes (crossover) instead of cloning. Off → asexual splitting only."><input type="checkbox" id="chkSexual"><span>mating</span></label>
+    <label class="tog" title="A slow day/night cycle that rises and falls the food supply over time."><input type="checkbox" id="chkDayNight" checked><span>day / night</span></label>
+    <label class="tog" title="If life nearly dies out, trickle in fresh random cells so the world can recover. Off → runs can truly end."><input type="checkbox" id="chkSpont" checked><span>auto-revive</span></label>
+    <label class="tog" title="Soft tones tied to births, deaths, and extinctions."><input type="checkbox" id="chkAudio"><span>sound</span></label>
   </div>
 
-  <label class="ctl">
-    <span class="lbl">colour by</span>
+  <label class="ctl" title="Choose what each creature's colour represents.">
+    <span class="lbl">Colour creatures by</span>
     <select id="selColor">
-      <option value="genome">genome (lineage drift)</option>
-      <option value="diet">diet (herb→pred)</option>
-      <option value="lineage">lineage id</option>
-      <option value="energy">energy</option>
+      <option value="genome">family (lineage drift)</option>
+      <option value="diet">diet (grazer → hunter)</option>
+      <option value="lineage">bloodline id</option>
+      <option value="energy">energy level</option>
     </select>
   </label>
 
-  <button id="btnExtinction" class="btn danger full">☄ Mass Extinction</button>
+  <button id="btnExtinction" class="btn danger full" title="Wipe out ~90% of life at random, then watch the survivors re-radiate (press X)">☄ Mass extinction</button>
 
-  <div class="hint">click empty water to drop food · click a creature to inspect</div>
+  <div class="hint">click empty water to drop food · click a creature to inspect it</div>
 </div>
 
 <!-- Right: live charts -->
 <div id="charts" class="panel glass">
-  <div class="chart"><div class="clabel">population <span id="cvPop"></span></div><canvas id="chartPop"></canvas></div>
-  <div class="chart"><div class="clabel">traits (speed·size·sensor)</div><canvas id="chartTraits"></canvas></div>
-  <div class="chart"><div class="clabel">biodiversity (species) <span id="cvBio"></span></div><canvas id="chartBio"></canvas></div>
-  <div class="chart"><div class="clabel">predator : prey <span id="cvPred"></span></div><canvas id="chartPred"></canvas></div>
+  <div class="chart" title="Number of living creatures over time"><div class="clabel">population <span id="cvPop"></span></div><canvas id="chartPop"></canvas></div>
+  <div class="chart" title="Average evolved body traits over time: speed (blue), size (amber), eyesight (violet)"><div class="clabel">average traits · <i style="color:#6ad0ff">speed</i> <i style="color:#ffd27a">size</i> <i style="color:#c79bff">eyesight</i></div><canvas id="chartTraits"></canvas></div>
+  <div class="chart" title="How many distinct species coexist (genetic diversity)"><div class="clabel">biodiversity (species) <span id="cvBio"></span></div><canvas id="chartBio"></canvas></div>
+  <div class="chart" title="Ratio of hunters to grazers — watch it oscillate"><div class="clabel">hunters : grazers <span id="cvPred"></span></div><canvas id="chartPred"></canvas></div>
 </div>
 
 <!-- Organism inspector (hidden until a creature is selected) -->
