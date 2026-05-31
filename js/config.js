@@ -31,7 +31,7 @@
     { name: 'sensorRange',    min: 40,   max: 175 },  // px
     { name: 'metabolism',     min: 0.5,  max: 1.8 },  // cost multiplier
     { name: 'diet',           min: 0,    max: 1 },    // 0 herbivore .. 1 predator
-    { name: 'reproThreshold', min: 60,   max: 210 },  // energy to split
+    { name: 'reproThreshold', min: 50,   max: 190 },  // energy to split
     { name: 'mutationRate',   min: 0.01, max: 0.25 }, // per-gene mutation sd
     { name: 'hue',            min: 0,    max: 1 }      // neutral marker -> colour
   ];
@@ -54,31 +54,41 @@
 
     // ---- Energy economy (per simulation tick at 1x) ----------------------
     economy: {
-      existCost: 0.05,       // base upkeep, scaled by metabolism * size^sizeCostExp
+      existCost: 0.045,      // base upkeep, scaled by metabolism * size^sizeCostExp
       sizeCostExp: 1.7,      // super-linear size cost -> bounds the size arms race
       moveCostK: 0.022,      // movement cost coefficient (speed^2 scaled)
-      crowdCost: 0.010,      // extra upkeep per crowding neighbour
+      // Density-dependent brake: per-capita upkeep rises with local crowding.
+      // This sets the emergent carrying capacity BELOW hardCap, so the
+      // population oscillates around it instead of pinning at the ceiling
+      // (which read as "maxes out then nothing happens").
+      crowdCost: 0.05,       // extra upkeep per crowding neighbour...
+      crowdRadius: 40,       // ...counted within this radius (px). Wide enough to
+                             // bite at high population yet ~zero at a sparse start.
       foodEnergy: 28,        // energy in one food particle (herbivore at diet 0)
       eatRadiusBonus: 7,     // base feeding radius (size adds only weakly)
       predationRate: 15,     // max energy drained from prey per tick
       predationMinSizeAdv: 1.15, // attacker must be this much bigger than prey
-      startEnergyFrac: 0.55, // newborn / spontaneous energy = frac * reproThreshold
+      startEnergyFrac: 0.8,  // newborn / spontaneous energy = frac * reproThreshold
       attackThreshold: 0.0   // brain attack output must exceed this to attack
     },
 
     // ---- World / food ----------------------------------------------------
     world: {
-      initialPop: 280,
+      // Start SPARSE: a small founder population in a food-rich-enough sea, so
+      // life takes hold and BLOOMS as foraging evolves — rather than starting
+      // crowded and starving en masse before any brain has learned to eat.
+      initialPop: 90,
+      burnIn: 1400,          // deterministic head-start ticks run before frame 1
       hardCap: 640,          // perf ceiling: no reproduction above this
-      foodAreaPer: 2600,     // 1 unit of food capacity per N px^2 (x density)
+      foodAreaPer: 1700,     // 1 unit of food capacity per N px^2 (x density)
       foodDrift: 0.12,       // food particle wander speed
-      spontaneousFloor: 6,   // below this pop, spawn fresh "primordial" cells
-      spontaneousRate: 0.25  // expected primordial births per tick when below floor
+      spontaneousFloor: 8,   // below this pop, spawn fresh "primordial" cells
+      spontaneousRate: 0.3   // expected primordial births per tick when below floor
     },
 
     // ---- Defaults for the user-controlled parameters ---------------------
     defaults: {
-      foodRate: 8,           // food particles spawned per tick (x density)
+      foodRate: 7,           // food particles spawned per tick (x density)
       mutationMult: 1.0,     // global multiplier on every genome's mutation rate
       density: 1.0,          // scales food capacity & spawn
       predation: true,

@@ -73,6 +73,17 @@
     this.refillFood(this.foodCapacity());
   };
 
+  // Deterministic head-start: advance the sim n ticks before the first frame is
+  // drawn, so the pool opens already lively — foraging has begun to evolve and
+  // the sparse founder population has started to bloom — instead of making the
+  // viewer watch random brains flail. This is still pure evolution, just
+  // pre-computed; it uses the same seeded RNG, so the run stays reproducible.
+  World.prototype.burnIn = function (n) {
+    if (!n) return;
+    for (var i = 0; i < n; i++) this.step();
+    this.sampleStats();
+  };
+
   // ---- Core object creation -----------------------------------------------
 
   World.prototype.addOrganism = function (genome, x, y, parent) {

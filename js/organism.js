@@ -63,7 +63,7 @@
 
     var odx = 0, ody = 0, od2 = Infinity, other = null, crowd = 0;
     var self = this;
-    var crowdR2 = 22 * 22;
+    var crowdR2 = ECON.crowdRadius * ECON.crowdRadius;
     world.orgGrid.forNeighbors(this.x, this.y, this.sensorRange, function (o, dx, dy, d2) {
       if (o === self || !o.alive) return;
       if (d2 < crowdR2) crowd++;              // local crowding (folded in here)

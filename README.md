@@ -115,11 +115,16 @@ healthy reef. Toggle it off if you want runs that can truly end.
 This is a real evolving system, so every seed tells a different story. Things you
 will genuinely see (not scripted):
 
-- **Foraging evolves from nothing.** Right after a reseed, motion is aimless and
-  the population sags as random brains starve amid uneaten food. Within a few
-  hundred ticks, descendants of the lucky few that drifted into food begin to
-  *steer*, and the population climbs. Generation depth (HUD: `max gen`) ticks up
-  as this happens.
+- **The opening bloom.** The world starts *sparse* — a small founder population
+  of random, useless brains dropped into a food-rich sea. Rather than make you
+  watch them flail, the sim runs a short **deterministic burn-in** before the
+  first frame (behind the loading splash), so the pool opens with foraging already
+  emerging and the population already blooming into the hundreds. From there it
+  keeps evolving as steering spreads through the lineages — `generations` (in the
+  HUD) climbing all the while. This is the heart of the sim: behaviour appearing
+  from selection alone, no die-off required. Press **New world** to watch a fresh
+  seed bloom from scratch. (Set `CONFIG.world.burnIn = 0` to watch the raw,
+  flailing first ticks instead.)
 
 - **Speciation / colour-banding.** Watch the hues separate into distinct drifting
   bands — each band is a dynasty. The **biodiversity** chart (species richness via
@@ -129,8 +134,8 @@ will genuinely see (not scripted):
   **predator:prey** chart. Predators boom when prey are dense, then crash as they
   over-hunt, letting prey rebound — the classic coupled oscillation. In some
   seeds predators stabilise into a permanent minority; in others they flare up and
-  go extinct, leaving a herbivore world. Crank **food spawn** and **density** to
-  make predator booms more likely (denser prey = a richer hunting ground).
+  go extinct, leaving a grazer world. Raise **Food supply** and **Crowding** to
+  make hunter booms more likely (denser grazers = a richer hunting ground).
 
 - **Evolutionary arms races.** Size is predation armour (you can only be eaten by
   something meaningfully bigger), so prey are pushed larger — until the
@@ -152,14 +157,20 @@ will genuinely see (not scripted):
 
 ## Controls
 
-- **Pause / Play** (`Space`), **Restart**, **sim speed** 1×–50× (time-budgeted so
-  the UI never locks up), and a **seed** field for reproducible runs.
-- **Sliders:** food spawn rate, global mutation-rate multiplier, world density.
-- **Toggles:** predation, sexual reproduction (uniform genome crossover with a
-  nearby mate), day/night cycle, primordial soup, audio.
-- **Colour by:** genome (lineage drift), diet, lineage id, or energy.
+Controls use plain-English labels (with the exact numbers in parentheses, and a
+tooltip on every one), so it's always clear what you're tweaking:
+
+- **Pause / Play** (`Space`), **New world** (restart from the seed), and **Speed —
+  how fast time runs** 1×–50× (time-budgeted so the UI never locks up).
+- **Seed** field: type any text for a reproducible world.
+- **Environment sliders:** *Food supply* (scarce → lush), *Mutation — speed of
+  evolution* (frozen → wild), *Crowding — how packed the sea is* (sparse →
+  teeming).
+- **Rules toggles:** *hunting* (predation), *mating* (sexual reproduction via
+  genome crossover), *day / night*, *auto-revive* (primordial soup), *sound*.
+- **Colour creatures by:** family (lineage drift), diet, bloodline id, or energy.
 - **Click empty water** to drop food; **click a creature** to inspect it.
-- **☄ Mass Extinction** (`X`).
+- **☄ Mass extinction** (`X`).
 
 ### Inspector
 
@@ -200,11 +211,16 @@ test/
 
 ## Design notes / honest caveats
 
-- The economy is tuned so the *default* world is populous and lively regardless of
-  seed luck, while still letting different seeds diverge into genuinely different
-  ecosystems. The biggest lever on the character of a run is the **food spawn /
-  density** pair: sparse worlds favour lean, fast specialists; rich worlds support
-  big populations and predator booms.
+- The economy is tuned so the *default* world reliably **establishes, blooms, and
+  then oscillates** regardless of seed luck. Two things make this work: it starts
+  sparse (so it grows into the world instead of starting crowded and starving),
+  and density-dependent crowding costs pin the carrying capacity *below* the
+  population cap — so the population keeps rising and falling (predator–prey and
+  resource cycles) rather than flatlining at the ceiling. Different seeds still
+  diverge into genuinely different ecosystems. The biggest lever on the character
+  of a run is the **Food supply / Crowding** pair: lean worlds favour fast
+  specialists; lush worlds support big populations and hunter booms. The default
+  opens at **3×** speed so the bloom and evolution are quick to watch.
 - "Species richness" is greedy genome clustering — a cheap, glanceable proxy, not
   a phylogenetic ground truth.
 - Determinism is best-effort. Identical seeds give near-identical runs; tiny

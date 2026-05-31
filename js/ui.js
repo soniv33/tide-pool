@@ -35,9 +35,21 @@
     $('inSeed').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('btnApplySeed').click(); });
 
     // ---- Live parameter sliders -----------------------------------------
-    bindSlider('rngFood', 'valFood', function (v) { world.params.foodRate = v; }, function (v) { return v.toFixed(1); });
-    bindSlider('rngMut', 'valMut', function (v) { world.params.mutationMult = v; }, function (v) { return v.toFixed(1); });
-    bindSlider('rngDensity', 'valDensity', function (v) { world.params.density = v; }, function (v) { return v.toFixed(1); });
+    // Values are shown as plain words (with the exact number in parentheses) so
+    // it's always obvious what a setting means without knowing the model's units.
+    bindSlider('rngFood', 'valFood', function (v) { world.params.foodRate = v; },
+      function (v) { return word(v, [[0.01, 'none'], [4, 'scarce'], [9, 'normal'], [16, 'plenty'], [99, 'lush']], v.toFixed(1)); });
+    bindSlider('rngMut', 'valMut', function (v) { world.params.mutationMult = v; },
+      function (v) { return word(v, [[0.01, 'frozen'], [0.6, 'slow'], [1.6, 'normal'], [3, 'fast'], [99, 'wild']], v.toFixed(1) + '×'); });
+    bindSlider('rngDensity', 'valDensity', function (v) { world.params.density = v; },
+      function (v) { return word(v, [[0.7, 'sparse'], [1.4, 'normal'], [2, 'packed'], [99, 'teeming']], v.toFixed(1) + '×'); });
+
+    // Map a value to the first label whose threshold it falls under, annotated
+    // with the raw number so power users still see the exact setting.
+    function word(v, table, raw) {
+      for (var i = 0; i < table.length; i++) if (v < table[i][0]) return table[i][1] + ' (' + raw + ')';
+      return table[table.length - 1][1] + ' (' + raw + ')';
+    }
 
     function bindSlider(rngId, valId, apply, fmt) {
       var el = $(rngId);
@@ -91,6 +103,11 @@
       else if (e.key === 'x' || e.key === 'X') $('btnExtinction').click();
       else if (e.key === 'Escape') self.select(null);
     });
+
+    // Sync every slider's word-label to its starting value, and apply that value
+    // to the world, so the panel and simulation agree from the first frame.
+    ['rngFood', 'rngMut', 'rngDensity'].forEach(function (id) { $(id).oninput(); });
+    rngSpeed.oninput();
   };
 
   // ---- Selection & inspector ---------------------------------------------

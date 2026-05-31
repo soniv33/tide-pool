@@ -21,15 +21,37 @@
     // Shared application state handed to the UI.
     var app = {
       world: world, renderer: renderer, charts: charts, audio: audio,
-      paused: false, simSpeed: 1,
+      paused: false, simSpeed: 3,
       restart: function (seed) {
         world.reset(seed);
         if (ui) ui.select(null);
+        runBurnIn();
       },
       toast: function (m) { if (ui) ui.toast(m); }
     };
 
     var ui = new TP.UI(app);
+
+    // ---- Opening burn-in behind the splash -------------------------------
+    // The world runs a deterministic head-start so the pool opens already alive
+    // (foraging emerging, the founder population blooming) instead of showing a
+    // minute of random flailing. The burn-in is synchronous and briefly freezes
+    // the thread, so we show the splash, let it paint across two frames, run the
+    // head-start, then fade the splash out.
+    var splash = document.getElementById('splash');
+    function runBurnIn() {
+      var n = TP.CONFIG.world.burnIn || 0;
+      if (!n) { if (splash) splash.classList.add('gone'); return; }
+      if (splash) splash.classList.remove('gone');
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          world.burnIn(n);
+          if (ui) ui.updateHUD(world.lastStats, 60);
+          if (splash) splash.classList.add('gone');
+        });
+      });
+    }
+    runBurnIn();
 
     // Keep canvas + world sized to the window.
     root.addEventListener('resize', function () {
