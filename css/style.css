@@ -58,8 +58,10 @@ html, body {
 /* ---- Controls ---- */
 #controls {
   left: max(16px, env(safe-area-inset-left, 0px));
+  top: calc(max(16px, env(safe-area-inset-top, 0px)) + 250px);
   bottom: max(16px, env(safe-area-inset-bottom, 0px));
   width: 232px; padding: 13px; display: flex; flex-direction: column; gap: 11px;
+  overflow-y: auto; overscroll-behavior: contain;
 }
 .row { display: flex; gap: 8px; }
 .ctl { display: flex; flex-direction: column; gap: 5px; }
@@ -179,14 +181,7 @@ input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border: none; b
 @media (max-width: 760px) {
   #charts { display: none; }
 
-  /* Push controls below the HUD (~210px) so they never overlap */
-  #controls {
-    width: 200px;
-    top: calc(max(16px, env(safe-area-inset-top, 0px)) + 210px);
-    bottom: max(16px, env(safe-area-inset-bottom, 0px));
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
+  #controls { width: 200px; }
 
   /* Larger touch targets */
   .btn { min-height: 38px; touch-action: manipulation; }
