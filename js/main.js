@@ -12,12 +12,31 @@
     var canvas = document.getElementById('world');
     var w = root.innerWidth, h = root.innerHeight;
 
-    // Scale population cap to screen area so mobile isn't overcrowded.
-    // A ~1280×800 viewport gets the full defaults; smaller screens scale down.
-    var areaScale = Math.min(1, (w * h) / (1280 * 800));
+    // Scale simulation to screen size: phones get far fewer, smaller creatures.
+    var area = w * h;
+    var shortSide = Math.min(w, h);
     var wcfg = TP.CONFIG.world;
-    wcfg.hardCap    = Math.max(100, Math.round(wcfg.hardCap    * areaScale));
-    wcfg.initialPop = Math.max(30,  Math.round(wcfg.initialPop * areaScale));
+    var origCap = wcfg.hardCap;
+    // Linear ramp: ~80 at phone size (250k px²), ~640 at 2M px² (1080p desktop).
+    wcfg.hardCap    = Math.min(origCap, Math.max(60, Math.round(80 + 0.00032 * Math.max(0, area - 250000))));
+    wcfg.initialPop = Math.max(15, Math.round(wcfg.initialPop * wcfg.hardCap / origCap));
+    // Shrink creature body and sensor ranges proportionally to screen short-side.
+    var sizeScale = Math.min(1, shortSide / 1080);
+    TP.CONFIG.genes.forEach(function (g) {
+      if (g.name === 'size') {
+        g.min = Math.max(1.5, +(g.min * sizeScale).toFixed(1));
+        g.max = Math.max(3.5, +(g.max * sizeScale).toFixed(1));
+      } else if (g.name === 'sensorRange') {
+        g.min = Math.max(20, Math.round(g.min * sizeScale));
+        g.max = Math.max(40, Math.round(g.max * sizeScale));
+      }
+    });
+    // On phones, default density to 0.3 — less crowded, matches what looks good.
+    if (shortSide < 500) {
+      TP.CONFIG.defaults.density = 0.3;
+      var ds = document.getElementById('rngDensity');
+      if (ds) ds.value = '0.3';
+    }
 
     var world = new TP.World(w, h, { seed: TP.CONFIG.defaults.seed });
     var renderer = new TP.Renderer(canvas);
@@ -28,7 +47,7 @@
     // Shared application state handed to the UI.
     var app = {
       world: world, renderer: renderer, charts: charts, audio: audio,
-      paused: false, simSpeed: 3,
+      paused: false, simSpeed: 1,
       restart: function (seed) {
         world.reset(seed);
         if (ui) ui.select(null);

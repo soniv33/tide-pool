@@ -184,6 +184,9 @@ input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border: none; b
 
   #controls { width: 200px; }
 
+  /* Darker panels so text stays legible over the vivid canvas */
+  .glass { background: rgba(4, 12, 20, 0.82); }
+
   /* Readable text on small screens */
   html { font-size: 13px; }
   .btn { font-size: 12px; min-height: 38px; touch-action: manipulation; }
